@@ -2,9 +2,8 @@ name: Deploy to Github pages (only on index.html changes)
 
 on:
   push:
-    branches: [main]
-    paths:
-      - 'index.html'
+    branches: ["main"]
+  
   workflow_dispatch:
 
 permissions:
@@ -13,11 +12,14 @@ permissions:
   id-token: write
 
 concurrency:
-  group: 'pages'
+  group: "pages"
   cancel-in-progress: false
 
 jobs:
-  build:
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.page_url }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -29,15 +31,9 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
+          # upload entire repository
           path: '.'
-
-deploy:
-  needs: build
-  runs-on: ubuntu-latest
-  environment:
-    name: github-pages
-    url: ${{ steps.deployment.page_url }}
-  steps:
-    - name: Deploy to Github pages
-      id: deployment
-      uses: actions/deploy-pages@v4
+     
+      - name: Deploy to Github Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
